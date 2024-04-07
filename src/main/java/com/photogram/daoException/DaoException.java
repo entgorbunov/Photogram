@@ -1,4 +1,4 @@
-package daoException;
+package com.photogram.daoException;
 
 public class DaoException extends RuntimeException {
 

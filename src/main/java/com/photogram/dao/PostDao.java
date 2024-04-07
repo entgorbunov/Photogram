@@ -1,9 +1,11 @@
-package dao;
+package com.photogram.dao;
 
-import daoException.DaoException;
-import entity.Post;
+import com.photogram.daoException.DaoException;
+import com.photogram.entity.Post;
+import com.photogram.util.ConnectionManager;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 
 import java.sql.*;
@@ -13,10 +15,9 @@ import java.util.Optional;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PostDao implements Dao<Long, Post> {
-    private static volatile PostDao instance = new PostDao();
+    private static volatile PostDao instance;
 
     private final UserDao userDao = UserDao.getInstance();
-    private Connection connection;
 
     public static final String FIND_ALL_SQL = """
             SELECT posts.id,
@@ -44,19 +45,22 @@ public class PostDao implements Dao<Long, Post> {
             """;
 
 
+
     public static PostDao getInstance() {
-        if (instance == null) {
+        PostDao localInstance = instance;
+        if (localInstance == null) {
             synchronized (PostDao.class) {
-                if (instance == null) {
-                    instance = new PostDao();
+                localInstance = instance;
+                if (localInstance == null) {
+                    instance = localInstance = new PostDao();
                 }
             }
         }
-        return instance;
+        return localInstance;
     }
 
     @Override
-    public boolean delete(Long id) {
+    public boolean delete(Long id, Connection connection) {
         try (var preparedStatement = connection.prepareStatement(DELETE_POST)) {
             preparedStatement.setLong(1, id);
             var changedData = preparedStatement.executeUpdate();
@@ -68,7 +72,7 @@ public class PostDao implements Dao<Long, Post> {
     }
 
     @Override
-    public Post save(Post post) {
+    public void save(Post post, Connection connection) {
         try (PreparedStatement preparedStatement = connection.prepareStatement(INSERT_NEW_POST, Statement.RETURN_GENERATED_KEYS)) {
             var affectedRows = setInfoToPost(post, preparedStatement);
             if (affectedRows == 0) {
@@ -84,11 +88,10 @@ public class PostDao implements Dao<Long, Post> {
         } catch (SQLException e) {
             throw new DaoException(e);
         }
-        return post;
     }
 
     @Override
-    public void update(Post post) {
+    public void update(Post post, Connection connection) {
         try (PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_POST)) {
             var affectedRows = setInfoToPost(post, preparedStatement);
             if (affectedRows == 0) {
@@ -112,7 +115,7 @@ public class PostDao implements Dao<Long, Post> {
 
 
     @Override
-    public Optional<Post> findById(Long id) {
+    public Optional<Post> findById(Long id, Connection connection) {
         Post post = new Post();
         ResultSet resultSet;
         try (var preparedStatement = connection.prepareStatement(FIND_BY_ID_SQL)) {
@@ -129,7 +132,7 @@ public class PostDao implements Dao<Long, Post> {
 
 
     @Override
-    public List<Post> findAll() {
+    public List<Post> findAll(Connection connection) {
         List<Post> postList = new ArrayList<>();
         try (Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery(FIND_ALL_SQL)) {
@@ -146,7 +149,7 @@ public class PostDao implements Dao<Long, Post> {
     private Post createPost(ResultSet resultSet) {
         try {
             return new Post(resultSet.getLong("id"),
-                    userDao.findById(resultSet.getLong("user_id")).orElse(null),
+                    userDao.findById(resultSet.getLong("user_id"), resultSet.getStatement().getConnection()).orElse(null),
                     resultSet.getString("caption"),
                     resultSet.getTimestamp("post_time"),
                     resultSet.getString("image_url"));

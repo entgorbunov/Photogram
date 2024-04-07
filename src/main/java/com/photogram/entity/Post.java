@@ -1,4 +1,4 @@
-package entity;
+package com.photogram.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

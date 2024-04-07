@@ -1,3 +1,5 @@
+package com.photogram.dao;
+
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 

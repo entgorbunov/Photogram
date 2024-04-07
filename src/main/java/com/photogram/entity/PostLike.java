@@ -1,12 +1,13 @@
-package entity;
+package com.photogram.entity;
+
 
 import lombok.Data;
 
 import java.sql.Timestamp;
 @Data
-public class CommentLike {
+public class PostLike {
     private int id;
     private int userId;
-    private int commentId;
+    private int postId;
     private Timestamp likeTime;
 }

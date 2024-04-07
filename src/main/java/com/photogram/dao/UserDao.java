@@ -1,10 +1,11 @@
-package dao;
+package com.photogram.dao;
 
-import daoException.DaoException;
-import entity.User;
+import com.photogram.daoException.DaoException;
+import com.photogram.entity.User;
+import com.photogram.util.ConnectionManager;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import lombok.SneakyThrows;
+import lombok.Setter;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ import java.util.Optional;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserDao implements Dao<Long, User> {
     private static volatile UserDao instance = new UserDao();
-    private Connection connection;
+
 
 
     private static final String SELECT_ALL_USERS = "SELECT id, username, profile_picture, bio, is_private, image_url FROM " +
@@ -23,6 +24,7 @@ public class UserDao implements Dao<Long, User> {
     private static final String INSERT_NEW_USER = "INSERT INTO Users (username, profile_picture, bio, is_private, image_url) VALUES (?, ?, ?, ?, ?)";
     private static final String UPDATE_USER = "UPDATE Users SET username = ?, profile_picture = ?, bio = ?, is_private = ?, image_url = ? WHERE id = ?";
         private static final String DELETE_USER = "DELETE FROM Users WHERE id = ?";
+
 
     public static UserDao getInstance() {
         if (instance == null) {
@@ -36,7 +38,7 @@ public class UserDao implements Dao<Long, User> {
     }
 
     @Override
-    public List<User> findAll() {
+    public List<User> findAll(Connection connection) {
         List<User> users = new ArrayList<>();
         try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(SELECT_ALL_USERS)) {
@@ -49,18 +51,18 @@ public class UserDao implements Dao<Long, User> {
         return users;
     }
 
-    private User createUser(ResultSet rs) throws SQLException {
-        return new User(rs.getLong("id"),
-                rs.getString("username"),
-                rs.getString("profile_picture"),
-                rs.getString("bio"),
-                rs.getBoolean("is_private"),
-                rs.getString("image_url"));
+    private User createUser(ResultSet resultSet) throws SQLException {
+        return new User(resultSet.getLong("id"),
+                resultSet.getString("username"),
+                resultSet.getString("profile_picture"),
+                resultSet.getString("bio"),
+                resultSet.getBoolean("is_private"),
+                resultSet.getString("image_url"));
     }
 
 
     @Override
-    public Optional<User> findById(Long id) {
+    public Optional<User> findById(Long id, Connection connection) {
         User user = null;
         ResultSet resultSet;
         try (PreparedStatement preparedStatement = connection.prepareStatement(SELECT_USER_BY_ID)) {
@@ -77,7 +79,7 @@ public class UserDao implements Dao<Long, User> {
     }
 
     @Override
-    public User save(User user) {
+    public void save(User user, Connection connection) {
         try (PreparedStatement pstmt = connection.prepareStatement(INSERT_NEW_USER, Statement.RETURN_GENERATED_KEYS)) {
             pstmt.setString(1, user.getUsername());
             pstmt.setString(2, user.getProfilePicture());
@@ -98,11 +100,10 @@ public class UserDao implements Dao<Long, User> {
         } catch (SQLException e) {
             throw new DaoException(e);
         }
-        return user;
     }
 
     @Override
-    public void update(User user) {
+    public void update(User user, Connection connection) {
         try (PreparedStatement pstmt = connection.prepareStatement(UPDATE_USER)) {
             pstmt.setString(1, user.getUsername());
             pstmt.setString(2, user.getProfilePicture());
@@ -117,7 +118,7 @@ public class UserDao implements Dao<Long, User> {
     }
 
     @Override
-    public boolean delete(Long id) {
+    public boolean delete(Long id, Connection connection) {
         try (PreparedStatement preparedStatement = connection.prepareStatement(DELETE_USER)) {
             preparedStatement.setLong(1, id);
             int changedData = preparedStatement.executeUpdate();
