@@ -5,9 +5,9 @@ import lombok.Data;
 import java.sql.Timestamp;
 @Data
 public class Subscription {
-    private int id;
-    private int followerId;
-    private int followingId;
+    private Long id;
+    private Long followerId;
+    private Long followingId;
     private Timestamp subscriptionTime;
 
 }

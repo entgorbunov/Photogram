@@ -16,8 +16,6 @@ import java.util.Optional;
 public class UserDao implements Dao<Long, User> {
     private static volatile UserDao instance = new UserDao();
 
-
-
     private static final String SELECT_ALL_USERS = "SELECT id, username, profile_picture, bio, is_private, image_url FROM " +
                                                    "Users";
     private static final String SELECT_USER_BY_ID = SELECT_ALL_USERS + " WHERE id = ? ";
@@ -40,10 +38,10 @@ public class UserDao implements Dao<Long, User> {
     @Override
     public List<User> findAll(Connection connection) {
         List<User> users = new ArrayList<>();
-        try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(SELECT_ALL_USERS)) {
-            while (rs.next()) {
-                users.add(createUser(rs));
+        try (Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(SELECT_ALL_USERS)) {
+            while (resultSet.next()) {
+                users.add(createUser(resultSet));
             }
         } catch (SQLException e) {
             throw new DaoException(e);
@@ -80,17 +78,17 @@ public class UserDao implements Dao<Long, User> {
 
     @Override
     public void save(User user, Connection connection) {
-        try (PreparedStatement pstmt = connection.prepareStatement(INSERT_NEW_USER, Statement.RETURN_GENERATED_KEYS)) {
-            pstmt.setString(1, user.getUsername());
-            pstmt.setString(2, user.getProfilePicture());
-            pstmt.setString(3, user.getBio());
-            pstmt.setBoolean(4, user.isPrivate());
-            pstmt.setString(5, user.getImageUrl());
-            int affectedRows = pstmt.executeUpdate();
+        try (PreparedStatement preparedStatement = connection.prepareStatement(INSERT_NEW_USER, Statement.RETURN_GENERATED_KEYS)) {
+            preparedStatement.setString(1, user.getUsername());
+            preparedStatement.setString(2, user.getProfilePicture());
+            preparedStatement.setString(3, user.getBio());
+            preparedStatement.setBoolean(4, user.isPrivate());
+            preparedStatement.setString(5, user.getImageUrl());
+            int affectedRows = preparedStatement.executeUpdate();
             if (affectedRows == 0) {
                 throw new DaoException("Creating user failed.");
             }
-            try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
+            try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     user.setId(generatedKeys.getLong(1));
                 } else {
@@ -104,14 +102,14 @@ public class UserDao implements Dao<Long, User> {
 
     @Override
     public void update(User user, Connection connection) {
-        try (PreparedStatement pstmt = connection.prepareStatement(UPDATE_USER)) {
-            pstmt.setString(1, user.getUsername());
-            pstmt.setString(2, user.getProfilePicture());
-            pstmt.setString(3, user.getBio());
-            pstmt.setBoolean(4, user.isPrivate());
-            pstmt.setString(5, user.getImageUrl());
-            pstmt.setLong(6, user.getId());
-            pstmt.executeUpdate();
+        try (PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_USER)) {
+            preparedStatement.setString(1, user.getUsername());
+            preparedStatement.setString(2, user.getProfilePicture());
+            preparedStatement.setString(3, user.getBio());
+            preparedStatement.setBoolean(4, user.isPrivate());
+            preparedStatement.setString(5, user.getImageUrl());
+            preparedStatement.setLong(6, user.getId());
+            preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         }

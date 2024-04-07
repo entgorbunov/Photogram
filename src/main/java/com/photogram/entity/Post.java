@@ -1,15 +1,13 @@
 package com.photogram.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.sql.Timestamp;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class Post {
-    private long id;
+    private Long id;
     private User user;
     private String caption;
     private Timestamp postTime;

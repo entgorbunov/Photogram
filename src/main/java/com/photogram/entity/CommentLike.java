@@ -5,8 +5,8 @@ import lombok.Data;
 import java.sql.Timestamp;
 @Data
 public class CommentLike {
-    private int id;
-    private int userId;
-    private int commentId;
+    private Long id;
+    private Long userId;
+    private Long commentId;
     private Timestamp likeTime;
 }
