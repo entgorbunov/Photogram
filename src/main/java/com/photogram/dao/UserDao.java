@@ -1,11 +1,10 @@
 package com.photogram.dao;
 
 import com.photogram.daoException.DaoException;
+import com.photogram.entity.CommentForPost;
 import com.photogram.entity.User;
-import com.photogram.util.ConnectionManager;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -17,11 +16,11 @@ public class UserDao implements Dao<Long, User> {
     private static volatile UserDao instance = new UserDao();
 
     private static final String SELECT_ALL_USERS = "SELECT id, username, profile_picture, bio, is_private, image_url FROM " +
-                                                   "Users";
+                                                   "photogram.public.Users";
     private static final String SELECT_USER_BY_ID = SELECT_ALL_USERS + " WHERE id = ? ";
-    private static final String INSERT_NEW_USER = "INSERT INTO Users (username, profile_picture, bio, is_private, image_url) VALUES (?, ?, ?, ?, ?)";
+    private static final String INSERT_NEW_USER = "INSERT INTO photogram.public.Users (username, profile_picture, bio, is_private, image_url) VALUES (?, ?, ?, ?, ?)";
     private static final String UPDATE_USER = "UPDATE Users SET username = ?, profile_picture = ?, bio = ?, is_private = ?, image_url = ? WHERE id = ?";
-        private static final String DELETE_USER = "DELETE FROM Users WHERE id = ?";
+        private static final String DELETE_USER = "DELETE FROM photogram.public.Users WHERE id = ?";
 
 
     public static UserDao getInstance() {

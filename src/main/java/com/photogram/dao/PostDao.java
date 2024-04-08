@@ -1,11 +1,10 @@
 package com.photogram.dao;
 
 import com.photogram.daoException.DaoException;
+import com.photogram.entity.CommentForPost;
 import com.photogram.entity.Post;
-import com.photogram.util.ConnectionManager;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 
 import java.sql.*;
@@ -19,8 +18,8 @@ public class PostDao implements Dao<Long, Post> {
 
     private final UserDao userDao = UserDao.getInstance();
 
-    public static final String FIND_ALL_SQL = """
-            SELECT posts.id,
+    private static final String FIND_ALL_SQL = """
+            SELECT photogram.public.posts.id,
                        posts.user_id,
                        posts.caption,
                        posts.post_time,
@@ -28,20 +27,20 @@ public class PostDao implements Dao<Long, Post> {
                        from posts
             """;
 
-    public static final String FIND_BY_ID_SQL = FIND_ALL_SQL + """
+    private static final String FIND_BY_ID_SQL = FIND_ALL_SQL + """
                        where id = ?
             """;
 
     private static final String INSERT_NEW_POST = """
-            INSERT INTO posts (id, user_id, caption, post_time, image_url) VALUES (?, ?, ?, ?, ?)
+            INSERT INTO photogram.public.posts (id, user_id, caption, post_time, image_url) VALUES (?, ?, ?, ?, ?)
             """;
 
-    public static final String UPDATE_POST = """
-            UPDATE posts SET id = ?, user_id = ?, caption = ?, post_time = ?, image_url = ? WHERE id = ?
+    private static final String UPDATE_POST = """
+            UPDATE photogram.public.posts SET id = ?, user_id = ?, caption = ?, post_time = ?, image_url = ? WHERE id = ?
             """;
 
-    public static final String DELETE_POST = """
-            DELETE from posts where id = ?
+    private static final String DELETE_POST = """
+            DELETE from photogram.public.posts where id = ?
             """;
 
 
@@ -103,14 +102,17 @@ public class PostDao implements Dao<Long, Post> {
 
     }
 
-    private static int setInfoToPost(Post post, PreparedStatement preparedStatement) throws SQLException {
-        preparedStatement.setLong(1, post.getId());
-        preparedStatement.setLong(2, post.getUser().getId());
-        preparedStatement.setString(3, post.getCaption());
-        preparedStatement.setTimestamp(4, post.getPostTime());
-        preparedStatement.setString(5, post.getImageUrl());
-        preparedStatement.executeUpdate();
-        return preparedStatement.executeUpdate();
+    private static int setInfoToPost(Post post, PreparedStatement preparedStatement)  {
+        try {
+            preparedStatement.setLong(1, post.getId());
+            preparedStatement.setLong(2, post.getUser().getId());
+            preparedStatement.setString(3, post.getCaption());
+            preparedStatement.setTimestamp(4, post.getPostTime());
+            preparedStatement.setString(5, post.getImageUrl());
+            return preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        }
     }
 
 

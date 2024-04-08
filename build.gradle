@@ -24,6 +24,7 @@ dependencies {
     implementation 'org.postgresql:postgresql:42.7.3'
     testCompileOnly 'org.projectlombok:lombok:1.18.32'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.32'
+    implementation 'p6spy:p6spy:3.9.1'
 }
 
 test {

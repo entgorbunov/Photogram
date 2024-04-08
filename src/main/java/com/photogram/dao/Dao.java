@@ -1,5 +1,7 @@
 package com.photogram.dao;
 
+import com.photogram.entity.CommentForPost;
+
 import java.sql.Connection;
 import java.util.List;
 import java.util.Optional;

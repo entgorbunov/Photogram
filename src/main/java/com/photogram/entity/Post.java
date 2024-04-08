@@ -13,4 +13,7 @@ public class Post {
     private Timestamp postTime;
     private String imageUrl;
 
+    public Post(Long id) {
+        this.id = id;
+    }
 }
