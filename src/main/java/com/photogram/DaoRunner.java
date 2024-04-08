@@ -26,7 +26,7 @@ public class DaoRunner {
             CommentDao commentDao = CommentDao.getInstance();
             ImageDao imageDao = ImageDao.getInstance();
             imageDao.update(new Image(2L, "asdasdf",
-                    new Post(1L, ), new User(1L),
+                    new Post(1L), new User(1L),
                     new Timestamp(12)), connection);
 
 
